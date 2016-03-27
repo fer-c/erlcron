@@ -17,6 +17,11 @@
          recalculate/1,
          validate/1]).
 
+-export([first_time/1,
+         next_time/2,
+         first_run/1,
+         next_run/2]). 
+
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
@@ -259,6 +264,27 @@ until_next_daytime(State, Period) ->
 -spec last_time/1 :: (erlcron:period()) -> erlcron:seconds().
 last_time(Period) ->
     hd(lists:reverse(lists:sort(resolve_period(Period)))).
+
+
+%% @doc
+%%  Validate that a run_when spec specified is correct and returns the first run time.
+-spec first_run/1 :: (erlcron:run_when()) ->
+    calendar:datetime().
+first_run(Spec) ->
+    DateTimeActual = ecrn_control:datetime(),
+    next_run(Spec, DateTimeActual).
+
+%% @doc
+%%  Validate that a run_when spec specified is correct and returns the first run time after datetime
+-spec next_run/2 :: (erlcron:run_when(), any()) ->
+    calendar:datetime().
+next_run(Spec, {DateTime, Actual}) ->
+    State = #state{job = undefined,
+                   alarm_ref = undefined},
+    NewState = set_internal_time(State, DateTime, Actual),
+    SecsToGo = until_next_time(NewState, {Spec, undefined}),
+
+    calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(DateTime) + SecsToGo).
 
 
 %% @doc Calculates the first time in a given period.

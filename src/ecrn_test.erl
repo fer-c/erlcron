@@ -22,7 +22,8 @@ cron_test_() ->
              fun cancel_alarm_test/1,
              fun big_time_jump_test/1,
              fun cron_test/1,
-             fun validation_test/1]}}.
+             fun validation_test/1,
+             fun next_run_test/1]}}.
 
 set_alarm_test(_) ->
     EpochDay = {2000,1,1},
@@ -158,6 +159,18 @@ validation_test(_) ->
     ?assertMatch(valid, ecrn_agent:validate({monthly, 4, {2, am}})),
     ?assertMatch(invalid, ecrn_agent:validate({daily, {55, 22, am}})),
     ?assertMatch(invalid, ecrn_agent:validate({monthly, 65, {55, am}})).
+
+next_run_test(_) ->
+    Day1 = {2000,1,1},
+    AlarmTimeOfDay = {15,20,00},
+    erlcron:set_datetime({Day1, AlarmTimeOfDay}),
+    DateTime = erlcron:datetime(),
+    Spec = {once, {3, 30, pm}},
+    FirstTime = ecrn_agent:first_run(Spec),
+    NextTime = ecrn_agent:next_run(Spec, DateTime),
+    ?assertMatch(FirstTime, NextTime),
+    ?assertMatch({{2000,1,1},{15,30,00}}, NextTime),
+    ok.
 
 %%%===================================================================
 %%% Internal Functions

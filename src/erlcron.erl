@@ -5,6 +5,10 @@
 -module(erlcron).
 
 -export([validate/1,
+         first_time/1,
+         next_time/2,
+         first_run/1,
+         next_run/2,
          cron/1,
          at/2,
          once/2,
@@ -63,6 +67,30 @@
 -spec validate/1 :: (run_when()) -> valid | invalid.
 validate(Spec) ->
     ecrn_agent:validate(Spec).
+
+%% @doc Calculates the first time in a given period.
+-spec first_time/1 :: (erlcron:period()) -> erlcron:seconds().
+first_time(Period) ->
+    ecrn_agent:first_time(Period).
+
+%% @doc Calculates the first time in the given period after the given time.
+-spec next_time/2 :: (erlcron:period(), erlcron:seconds()) -> erlcron:seconds().
+next_time(Period, Time) ->
+    ecrn_agent:next_time(Period, Time).
+
+%% @doc
+%%  Validate that a run_when spec specified is correct and returns the first run time.
+-spec first_run/1 :: (erlcron:run_when()) ->
+    calendar:datetime().
+first_run(Spec) ->
+    ecrn_agent:first_run(Spec).
+
+%% @doc
+%%  Validate that a run_when spec specified is correct and returns the first run time after datetime
+-spec next_run/2 :: (erlcron:run_when(), any()) ->
+    calendar:datetime().
+next_run(Spec, {DateTime, Actual}) ->
+    ecrn_agent:next_run(Spec, {DateTime, Actual}).
 
 %% @doc
 %%  Adds a new job to the cron system. Jobs are described in the job()
