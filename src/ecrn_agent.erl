@@ -20,7 +20,7 @@
 -export([first_time/1,
          next_time/2,
          first_run/1,
-         next_run/2]). 
+         next_run/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
